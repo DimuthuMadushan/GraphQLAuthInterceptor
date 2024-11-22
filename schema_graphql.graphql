@@ -1,0 +1,38 @@
+type Query {
+  getUser(userId: ID!): User
+  getBooks: [Book!]!
+  viewBorrowHistory(userId: ID!): [BorrowRecord!]
+}
+
+type Mutation {
+  addUser(name: String!, role: Role!): User
+  addBook(title: String!, author: String!): Book
+  removeBook(bookId: ID!): Book
+  borrowBook(userId: ID!bookId: ID!): BorrowRecord
+  returnBook(userId: ID!, bookId: ID!): BorrowRecord
+}
+
+type User {
+  id: ID!
+  name: String!
+  role: Role!
+}
+
+enum Role {
+  MEMBER
+  LIBRARIAN
+  ADMIN
+}
+
+type Book {
+  id: ID!
+  title: String!
+  author: String!
+  available: Boolean!
+}
+
+type BorrowRecord {
+  book: Book
+  borrowedDate: String!
+  returnedDate: String
+}
