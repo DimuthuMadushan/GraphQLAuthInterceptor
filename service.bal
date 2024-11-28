@@ -11,7 +11,7 @@ import AuthInterceptor.datasource as ds;
 isolated readonly service class AuthInterceptor {
     *graphql:Interceptor;
 
-    private map<Role[]> scopes = {
+    private final map<Role[]> scopes = {
         addUser: [ADMIN],
         getUser: [ADMIN, LIBRARIAN],
         getBooks: [ADMIN, LIBRARIAN, MEMBER],
@@ -23,16 +23,14 @@ isolated readonly service class AuthInterceptor {
     };
     isolated remote function execute(graphql:Context context, graphql:Field 'field) returns anydata|error {
         value:Cloneable|isolated object {} role = check context.get("role");
-        lock {
-            if role is Role && self.scopes.hasKey('field.getName()) {
-                Role[] scopes = <Role[]>self.scopes['field.getName()];
-                if scopes.indexOf(role) is int {
-                    return context.resolve('field);
-                }
-                return error("Unauthorized");
+        if role is Role && self.scopes.hasKey('field.getName()) {
+            Role[] scopes = check self.scopes['field.getName()].ensureType();
+            if scopes.indexOf(role) is int {
+                return context.resolve('field);
             }
-            return error("Invalid user role");
+            return error("Unauthorized");
         }
+        return error("Invalid user role");
     }
 }
 
